@@ -1,0 +1,174 @@
+import React, { useState, useEffect } from "react";
+import { MenuItem } from "@/entities/MenuItem";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ShoppingCart, Plus, Minus, Star, Leaf, Wheat } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+import MenuItemCard from "../components/menu/MenuItemCard";
+import CartDrawer from "../components/menu/CartDrawer";
+import MenuHero from "../components/menu/MenuHero";
+
+export default function MenuPage() {
+  const [menuItems, setMenuItems] = useState([]);
+  const [activeCategory, setActiveCategory] = useState("appetizers");
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadMenuItems();
+  }, []);
+
+  const loadMenuItems = async () => {
+    setIsLoading(true);
+    const items = await MenuItem.list();
+    setMenuItems(items);
+    setIsLoading(false);
+  };
+
+  const addToCart = (item) => {
+    setCart(prev => {
+      const existingItem = prev.find(cartItem => cartItem.id === item.id);
+      if (existingItem) {
+        return prev.map(cartItem =>
+          cartItem.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      } else {
+        return [...prev, { ...item, quantity: 1 }];
+      }
+    });
+  };
+
+  const updateCartQuantity = (itemId, newQuantity) => {
+    if (newQuantity === 0) {
+      setCart(prev => prev.filter(item => item.id !== itemId));
+    } else {
+      setCart(prev =>
+        prev.map(item =>
+          item.id === itemId ? { ...item, quantity: newQuantity } : item
+        )
+      );
+    }
+  };
+
+  const getTotalItems = () => cart.reduce((sum, item) => sum + item.quantity, 0);
+  const getTotalPrice = () => cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  const filteredItems = menuItems.filter(item => 
+    item.category === activeCategory && item.available
+  );
+
+  const categories = [
+    { key: "appetizers", label: "Appetizers", icon: "🥗" },
+    { key: "mains", label: "Main Courses", icon: "🍽️" },
+    { key: "desserts", label: "Desserts", icon: "🍰" },
+    { key: "drinks", label: "Beverages", icon: "🍷" }
+  ];
+
+  return (
+    <div className="min-h-screen">
+      <MenuHero />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Menu Navigation */}
+        <div className="mb-12">
+          <h2 className="text-3xl font-serif font-bold text-center text-primary mb-8">
+            Our Menu
+          </h2>
+          
+          <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full">
+            <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full max-w-2xl mx-auto bg-red-50 p-1">
+              {categories.map(category => (
+                <TabsTrigger
+                  key={category.key}
+                  value={category.key}
+                  className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-primary"
+                >
+                  <span className="text-lg">{category.icon}</span>
+                  <span className="hidden sm:inline font-medium">{category.label}</span>
+                  <span className="sm:hidden font-medium">{category.label.split(' ')[0]}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            {/* Menu Items */}
+            {categories.map(category => (
+              <TabsContent key={category.key} value={category.key} className="mt-8">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {isLoading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {Array(6).fill(0).map((_, i) => (
+                        <div key={i} className="bg-white rounded-xl p-6 shadow-sm animate-pulse">
+                          <div className="w-full h-48 bg-gray-200 rounded-lg mb-4"></div>
+                          <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                          <div className="h-3 bg-gray-200 rounded mb-4 w-3/4"></div>
+                          <div className="h-4 bg-gray-200 rounded w-20"></div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <AnimatePresence>
+                        {filteredItems.map(item => (
+                          <MenuItemCard
+                            key={item.id}
+                            item={item}
+                            onAddToCart={addToCart}
+                            cartQuantity={cart.find(cartItem => cartItem.id === item.id)?.quantity || 0}
+                          />
+                        ))}
+                      </AnimatePresence>
+                    </div>
+                  )}
+                  
+                  {!isLoading && filteredItems.length === 0 && (
+                    <div className="text-center py-12">
+                      <p className="text-gray-500 text-lg">No items available in this category.</p>
+                    </div>
+                  )}
+                </motion.div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
+      </div>
+
+      {/* Floating Cart Button */}
+      {cart.length > 0 && (
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="fixed bottom-6 right-6 z-40"
+        >
+          <Button
+            onClick={() => setIsCartOpen(true)}
+            className="bg-primary hover:bg-primary-light text-white rounded-full w-16 h-16 shadow-xl hover:shadow-2xl transition-all duration-200 relative"
+          >
+            <ShoppingCart className="w-6 h-6" />
+            <Badge className="absolute -top-2 -right-2 bg-secondary text-primary text-xs min-w-[1.5rem] h-6 rounded-full flex items-center justify-center">
+              {getTotalItems()}
+            </Badge>
+          </Button>
+        </motion.div>
+      )}
+
+      {/* Cart Drawer */}
+      <CartDrawer
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        cart={cart}
+        updateQuantity={updateCartQuantity}
+        totalPrice={getTotalPrice()}
+      />
+    </div>
+  );
+}
