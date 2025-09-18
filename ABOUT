@@ -1,0 +1,192 @@
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { MapPin, Phone, Mail, Clock, Star, Users, Award } from "lucide-react";
+
+export default function AboutPage() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-red-50 to-amber-50">
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-r from-red-900 to-red-800 text-white overflow-hidden">
+        <div className="absolute inset-0 bg-black/30"></div>
+        <div 
+          className="absolute inset-0 opacity-40"
+          style={{
+            backgroundImage: "url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')",
+            backgroundSize: "cover",
+            backgroundPosition: "center"
+          }}
+        ></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6">
+              About <span className="text-secondary">Bella Vista</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-red-100 max-w-3xl mx-auto">
+              A culinary journey that celebrates authentic flavors, exceptional service, 
+              and unforgettable dining experiences since 1995.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Our Story */}
+        <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
+          <div>
+            <h2 className="text-3xl font-serif font-bold text-primary mb-6">Our Story</h2>
+            <div className="space-y-4 text-gray-700 leading-relaxed">
+              <p>
+                Founded in 1995 by Chef Marco Antonelli, Bella Vista began as a dream to bring 
+                authentic Mediterranean flavors to the heart of downtown. What started as a small 
+                family-owned restaurant has grown into a beloved culinary destination.
+              </p>
+              <p>
+                Our commitment to excellence is rooted in using only the finest ingredients, 
+                traditional cooking methods, and a passion for hospitality that has been passed 
+                down through generations. Every dish tells a story of our heritage and dedication 
+                to the culinary arts.
+              </p>
+              <p>
+                Today, Bella Vista continues to be a place where memories are made, celebrations 
+                are honored, and every meal is an opportunity to bring people together around 
+                exceptional food and warm hospitality.
+              </p>
+            </div>
+          </div>
+          
+          <div className="relative">
+            <img
+              src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+              alt="Chef in kitchen"
+              className="rounded-2xl shadow-2xl"
+            />
+            <div className="absolute -bottom-6 -right-6 bg-primary text-white p-6 rounded-xl">
+              <div className="text-center">
+                <div className="text-2xl font-bold">29+</div>
+                <div className="text-sm">Years of Excellence</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-20">
+          <Card className="text-center p-6 bg-white shadow-lg hover:shadow-xl transition-all duration-200">
+            <CardContent className="space-y-2">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Users className="w-6 h-6 text-green-600" />
+              </div>
+              <div className="text-2xl font-bold text-primary">50k+</div>
+              <div className="text-gray-600">Happy Customers</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="text-center p-6 bg-white shadow-lg hover:shadow-xl transition-all duration-200">
+            <CardContent className="space-y-2">
+              <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Star className="w-6 h-6 text-yellow-600 fill-current" />
+              </div>
+              <div className="text-2xl font-bold text-primary">4.9</div>
+              <div className="text-gray-600">Average Rating</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="text-center p-6 bg-white shadow-lg hover:shadow-xl transition-all duration-200">
+            <CardContent className="space-y-2">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Award className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="text-2xl font-bold text-primary">12</div>
+              <div className="text-gray-600">Awards Won</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="text-center p-6 bg-white shadow-lg hover:shadow-xl transition-all duration-200">
+            <CardContent className="space-y-2">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Clock className="w-6 h-6 text-purple-600" />
+              </div>
+              <div className="text-2xl font-bold text-primary">29</div>
+              <div className="text-gray-600">Years Experience</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Contact Information */}
+        <div className="grid lg:grid-cols-2 gap-12">
+          <Card className="bg-white shadow-lg">
+            <CardContent className="p-8">
+              <h3 className="text-2xl font-serif font-bold text-primary mb-6">Visit Us</h3>
+              
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Address</h4>
+                    <p className="text-gray-600">123 Gourmet Street<br />Downtown District, City 12345</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Phone</h4>
+                    <p className="text-gray-600">(555) 123-4567</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Email</h4>
+                    <p className="text-gray-600">hello@bellavista.com</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white shadow-lg">
+            <CardContent className="p-8">
+              <h3 className="text-2xl font-serif font-bold text-primary mb-6">Hours of Operation</h3>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="font-medium">Monday - Thursday</span>
+                  <span className="text-gray-600">5:00 PM - 10:00 PM</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="font-medium">Friday - Saturday</span>
+                  <span className="text-gray-600">5:00 PM - 11:00 PM</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="font-medium">Sunday</span>
+                  <span className="text-gray-600">4:00 PM - 9:00 PM</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="font-medium">Holidays</span>
+                  <span className="text-gray-600">Special Hours</span>
+                </div>
+              </div>
+              
+              <div className="mt-6 p-4 bg-green-50 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="font-medium text-green-800">Currently Open</span>
+                </div>
+                <p className="text-green-700 text-sm mt-1">Open until 10:00 PM today</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
