@@ -1,174 +1,125 @@
-import React, { useState, useEffect } from "react";
-import { MenuItem } from "@/entities/MenuItem";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ShoppingCart, Plus, Minus, Star, Leaf, Wheat } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Restaurant Menu</title>
+<style>
+  body { font-family: sans-serif; margin: 0; background: #fafafa; }
+  header { background: #d22; color: #fff; padding: 1rem; text-align: center; }
+  .tabs { display: flex; justify-content: center; margin: 1rem 0; flex-wrap: wrap; }
+  .tabs button { margin: 0.3rem; padding: 0.5rem 1rem; border: none; border-radius: 6px; background:#eee; cursor:pointer; }
+  .tabs button.active { background:#fff; border:1px solid #d22; color:#d22; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:1rem; padding:1rem; }
+  .card { background: #fff; border-radius: 10px; padding: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.1);}
+  .card h3 { margin: 0 0 0.5rem 0; }
+  .cart-btn { position: fixed; bottom: 20px; right: 20px; background: #d22; color: #fff;
+              border:none; border-radius:50%; width:60px; height:60px; font-size:20px;
+              display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .drawer { position: fixed; top:0; right:-320px; width:300px; height:100%;
+            background:#fff; box-shadow:-2px 0 6px rgba(0,0,0,0.2); padding:1rem;
+            transition: right 0.3s ease; overflow-y:auto; }
+  .drawer.open { right:0; }
+  .drawer h2 { margin-top:0; }
+  .drawer button { margin-top:1rem; padding:0.5rem 1rem; background:#d22; color:#fff; border:none; cursor:pointer; }
+</style>
+</head>
+<body>
 
-import MenuItemCard from "../components/menu/MenuItemCard";
-import CartDrawer from "../components/menu/CartDrawer";
-import MenuHero from "../components/menu/MenuHero";
+<header>
+  <h1>Our Menu</h1>
+</header>
 
-export default function MenuPage() {
-  const [menuItems, setMenuItems] = useState([]);
-  const [activeCategory, setActiveCategory] = useState("appetizers");
-  const [cart, setCart] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+<div class="tabs" id="categoryTabs"></div>
+<div class="grid" id="menuGrid"></div>
 
-  useEffect(() => {
-    loadMenuItems();
-  }, []);
+<button class="cart-btn" id="cartButton">🛒<span id="cartCount">0</span></button>
 
-  const loadMenuItems = async () => {
-    setIsLoading(true);
-    const items = await MenuItem.list();
-    setMenuItems(items);
-    setIsLoading(false);
-  };
+<div class="drawer" id="cartDrawer">
+  <h2>Your Cart</h2>
+  <ul id="cartList"></ul>
+  <p><strong>Total:</strong> ₹<span id="cartTotal">0</span></p>
+  <button id="closeCart">Close</button>
+</div>
 
-  const addToCart = (item) => {
-    setCart(prev => {
-      const existingItem = prev.find(cartItem => cartItem.id === item.id);
-      if (existingItem) {
-        return prev.map(cartItem =>
-          cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
-        );
-      } else {
-        return [...prev, { ...item, quantity: 1 }];
-      }
-    });
-  };
+<script>
+const categories = [
+  { key:"appetizers", label:"Appetizers" },
+  { key:"mains",      label:"Main Courses" },
+  { key:"desserts",   label:"Desserts" },
+  { key:"drinks",     label:"Beverages" }
+];
 
-  const updateCartQuantity = (itemId, newQuantity) => {
-    if (newQuantity === 0) {
-      setCart(prev => prev.filter(item => item.id !== itemId));
-    } else {
-      setCart(prev =>
-        prev.map(item =>
-          item.id === itemId ? { ...item, quantity: newQuantity } : item
-        )
-      );
-    }
-  };
+const menuItems = [
+  { id:1, name:"Bruschetta", category:"appetizers", price:120, available:true},
+  { id:2, name:"tikka", category:"appetizers", price:220, available:true},
+  { id:3, name:"Veg Burger", category:"mains", price:200, available:true },
+  { id:4, name:"Chocolate Cake", category:"desserts", price:150, available:true },
+  { id:5, name:"Iced Coffee", category:"drinks", price:90, available:true },
+];
 
-  const getTotalItems = () => cart.reduce((sum, item) => sum + item.quantity, 0);
-  const getTotalPrice = () => cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+let activeCategory = categories[0].key;
+let cart = [];
 
-  const filteredItems = menuItems.filter(item => 
-    item.category === activeCategory && item.available
-  );
-
-  const categories = [
-    { key: "appetizers", label: "Appetizers", icon: "🥗" },
-    { key: "mains", label: "Main Courses", icon: "🍽️" },
-    { key: "desserts", label: "Desserts", icon: "🍰" },
-    { key: "drinks", label: "Beverages", icon: "🍷" }
-  ];
-
-  return (
-    <div className="min-h-screen">
-      <MenuHero />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Menu Navigation */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-serif font-bold text-center text-primary mb-8">
-            Our Menu
-          </h2>
-          
-          <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full">
-            <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full max-w-2xl mx-auto bg-red-50 p-1">
-              {categories.map(category => (
-                <TabsTrigger
-                  key={category.key}
-                  value={category.key}
-                  className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-primary"
-                >
-                  <span className="text-lg">{category.icon}</span>
-                  <span className="hidden sm:inline font-medium">{category.label}</span>
-                  <span className="sm:hidden font-medium">{category.label.split(' ')[0]}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            {/* Menu Items */}
-            {categories.map(category => (
-              <TabsContent key={category.key} value={category.key} className="mt-8">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {isLoading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {Array(6).fill(0).map((_, i) => (
-                        <div key={i} className="bg-white rounded-xl p-6 shadow-sm animate-pulse">
-                          <div className="w-full h-48 bg-gray-200 rounded-lg mb-4"></div>
-                          <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                          <div className="h-3 bg-gray-200 rounded mb-4 w-3/4"></div>
-                          <div className="h-4 bg-gray-200 rounded w-20"></div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      <AnimatePresence>
-                        {filteredItems.map(item => (
-                          <MenuItemCard
-                            key={item.id}
-                            item={item}
-                            onAddToCart={addToCart}
-                            cartQuantity={cart.find(cartItem => cartItem.id === item.id)?.quantity || 0}
-                          />
-                        ))}
-                      </AnimatePresence>
-                    </div>
-                  )}
-                  
-                  {!isLoading && filteredItems.length === 0 && (
-                    <div className="text-center py-12">
-                      <p className="text-gray-500 text-lg">No items available in this category.</p>
-                    </div>
-                  )}
-                </motion.div>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </div>
-      </div>
-
-      {/* Floating Cart Button */}
-      {cart.length > 0 && (
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="fixed bottom-6 right-6 z-40"
-        >
-          <Button
-            onClick={() => setIsCartOpen(true)}
-            className="bg-primary hover:bg-primary-light text-white rounded-full w-16 h-16 shadow-xl hover:shadow-2xl transition-all duration-200 relative"
-          >
-            <ShoppingCart className="w-6 h-6" />
-            <Badge className="absolute -top-2 -right-2 bg-secondary text-primary text-xs min-w-[1.5rem] h-6 rounded-full flex items-center justify-center">
-              {getTotalItems()}
-            </Badge>
-          </Button>
-        </motion.div>
-      )}
-
-      {/* Cart Drawer */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cart={cart}
-        updateQuantity={updateCartQuantity}
-        totalPrice={getTotalPrice()}
-      />
-    </div>
-  );
+function renderCategories() {
+  const tabs = document.getElementById("categoryTabs");
+  tabs.innerHTML = "";
+  categories.forEach(cat => {
+    const btn = document.createElement("button");
+    btn.textContent = cat.label;
+    btn.className = cat.key === activeCategory ? "active" : "";
+    btn.onclick = () => { activeCategory = cat.key; renderMenu(); renderCategories(); };
+    tabs.appendChild(btn);
+  });
 }
+
+function renderMenu() {
+  const grid = document.getElementById("menuGrid");
+  grid.innerHTML = "";
+  menuItems
+    .filter(item => item.category === activeCategory && item.available)
+    .forEach(item => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<h3>${item.name}</h3><p>₹${item.price}</p>`;
+      const addBtn = document.createElement("button");
+      addBtn.textContent = "Add to Cart";
+      addBtn.onclick = () => addToCart(item);
+      card.appendChild(addBtn);
+      grid.appendChild(card);
+    });
+}
+
+function addToCart(item) {
+  const existing = cart.find(c => c.id === item.id);
+  if (existing) existing.qty += 1;
+  else cart.push({ ...item, qty: 1 });
+  updateCartUI();
+}
+
+function updateCartUI() {
+  document.getElementById("cartCount").textContent =
+    cart.reduce((s,i) => s + i.qty, 0);
+  const list = document.getElementById("cartList");
+  list.innerHTML = "";
+  cart.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = `${item.name} x${item.qty} - ₹${item.price * item.qty}`;
+    list.appendChild(li);
+  });
+  const total = cart.reduce((s,i) => s + i.qty * i.price, 0);
+  document.getElementById("cartTotal").textContent = total;
+}
+
+document.getElementById("cartButton").onclick = () =>
+  document.getElementById("cartDrawer").classList.add("open");
+document.getElementById("closeCart").onclick = () =>
+  document.getElementById("cartDrawer").classList.remove("open");
+
+renderCategories();
+renderMenu();
+</script>
+</body>
+</html>
+
+convert this code in css
